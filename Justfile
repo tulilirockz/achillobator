@@ -135,6 +135,12 @@ _build-bib $target_image $tag $type $config: (_rootful_load_image target_image t
 
     mkdir -p "output"
 
+    if [[ $type == iso ]]; then
+      sudo rm -rf "output/bootiso" || true
+    else
+      sudo rm -rf "output/${type}" || true
+    fi
+
     echo "Cleaning up previous build"
 
     args=" --type ${type}"
@@ -143,18 +149,12 @@ _build-bib $target_image $tag $type $config: (_rootful_load_image target_image t
       args+=" --local"
     fi
 
-    if [[ $type == iso ]]; then
-      sudo rm -rf "output/bootiso" || true
-      args+=" --net=host"
-    else
-      sudo rm -rf "output/${type}" || true
-    fi
-
     sudo podman run \
       --rm \
       -it \
       --privileged \
       --pull=newer \
+      --net=host \
       --security-opt label=type:unconfined_t \
       -v $(pwd)/${config} \
       -v $(pwd)/output:/output \
