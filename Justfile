@@ -137,16 +137,17 @@ _build-bib $target_image $tag $type $config: (_rootful_load_image target_image t
 
     echo "Cleaning up previous build"
 
-    if [[ $type == iso ]]; then
-        sudo rm -rf "output/bootiso" || true
-    else
-        sudo rm -rf "output/${type}" || true
-    fi
-
-    args="--type ${type}"
+    args=" --type ${type}"
 
     if [[ $target_image == localhost/* ]]; then
       args+=" --local"
+    fi
+
+    if [[ $type == iso ]]; then
+      sudo rm -rf "output/bootiso" || true
+      args+=" --net=host"
+    else
+      sudo rm -rf "output/${type}" || true
     fi
 
     sudo podman run \
