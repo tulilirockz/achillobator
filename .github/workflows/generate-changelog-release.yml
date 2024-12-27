@@ -1,17 +1,21 @@
 on:
+  schedule:
+    - cron: '05 11 * * *' # 11:05am UTC everyday
   workflow_call:
     inputs:
       stream_name:
         description: "Release Tag (e.g. stream10, latest)"
         type: string
-        required: true
+        default: "stream10"
+        required: false
   workflow_dispatch:
     inputs:
       handwritten:
         description: "Small Changelog about changes in this build"
       stream_name:
         description: "Release Tag (e.g. gts, stable)"
-        required: true
+        required: false
+        default: '["stream10"]'
         type: choice
         options:
           - '["stream10"]'
@@ -40,7 +44,7 @@ jobs:
         id: generate-release-text
         shell: bash
         run: |
-          python3 changelogs.py --workdir . "${{ matrix.version }}" ./output.env ./changelog.md --handwritten "${{ inputs.handwritten }}" 
+          python3 .github/changelogs.py --workdir . "${{ matrix.version }}" ./output.env ./changelog.md --handwritten "${{ inputs.handwritten }}" 
           source ./output.env
           echo "title=${TITLE}" >> $GITHUB_OUTPUT
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
